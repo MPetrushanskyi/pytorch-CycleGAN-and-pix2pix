@@ -155,6 +155,9 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = UnetGenerator(input_nc, output_nc, 7, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
     elif netG == 'unet_256':
         net = UnetGenerator(input_nc, output_nc, 8, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
+    elif netG == 'Auto':
+        net = AutoRetouchModelGenerator()
+    
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
     return init_net(net, init_type, init_gain, gpu_ids)
@@ -431,6 +434,106 @@ class ResnetBlock(nn.Module):
     def forward(self, x):
         """Forward function (with skip connections)"""
         out = x + self.conv_block(x)  # add skip connections
+        return out
+
+
+class AutoRetouchModelGenerator(nn.Module):
+    """Resnet-based generator that consists of Resnet blocks between a few downsampling/upsampling operations.
+
+    We adapt Torch code and idea from Justin Johnson's neural style transfer project(https://github.com/jcjohnson/fast-neural-style)
+    """
+
+    def __init__(self):
+       
+        #assert(n_blocks >= 0)
+        super(AutoRetouchModelGenerator, self).__init__()
+      
+
+        model=[nn.Conv2d(3, 64, kernel_size=7),
+               nn.LeakyReLU(0.2,True)  ]
+
+             
+
+        model += [AutoRetouchInnerBlock()]
+
+        
+        model+= [nn.Conv2d(64, 3, kernel_size=3)]
+
+        self.model = nn.Sequential(*model)
+
+    def forward(self, input):
+        """Standard forward"""
+        return self.model(input)
+
+
+
+class AutoRetouchBlock(nn.Module):
+    """Define a Resnet block"""
+
+    def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+        """Initialize the Resnet block
+
+        A resnet block is a conv block with skip connections
+        We construct a conv block with build_conv_block function,
+        and implement skip connections in <forward> function.
+        Original Resnet paper: https://arxiv.org/pdf/1512.03385.pdf
+        """
+        super(AutoRetouchBlock, self).__init__()
+        self.conv_block = self.build_conv_block()
+
+    def build_conv_block(self):
+        """Construct a convolutional block.
+
+      
+        """
+        conv_block = []
+       
+
+        conv_block += [ nn.Conv2d(128, 128, kernel_size=3),
+                        nn.BatchNorm2d(128),
+                        nn.LeakyReLU(0.2, True),
+                        nn.Conv2d(128, 128, kernel_size=3),
+                        nn.BatchNorm2d(128), 
+                        nn.LeakyReLU(0.2, True)]
+    
+
+        return nn.Sequential(*conv_block)
+
+    def forward(self, x):
+        """Forward function (with skip connections)"""
+        out = x + self.conv_block(x)  # add skip connections
+        return out
+
+class AutoRetouchInnerBlock(nn.Module):
+    """Define an inner block"""
+
+    def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+        
+        super(AutoRetouchInnerBlock, self).__init__()
+        self.inner_block = self.build_inner_block(dim, padding_type, norm_layer, use_dropout, use_bias)
+
+    def build_inner_block(self):
+        
+        inner_block = []
+        
+        inner_block+=[nn.Conv2d(3,64, kernel_size=7, stride=2)  ]
+        n_blocks=15
+        for i in range(n_blocks):       # add ResNet blocks
+
+            inner_block += [AutoRetouchBlock()]
+
+        
+        inner_block+= [nn.Conv2d(128, 64, kernel_size=3),
+        nn.LeakyReLU(0.2,True),
+        nn.Upsample(scale_factor=2, mode='nearest', align_corners=True)]
+        
+
+       
+        return nn.Sequential(*inner_block)
+
+    def forward(self, x):
+        """Forward function (with skip connections)"""
+        out = x + self.inner_block(x)  # add skip connections
         return out
 
 
