@@ -507,10 +507,10 @@ class AutoRetouchBlock(nn.Module):
 class AutoRetouchInnerBlock(nn.Module):
     """Define an inner block"""
 
-    def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+    def __init__(self):
         
         super(AutoRetouchInnerBlock, self).__init__()
-        self.inner_block = self.build_inner_block(dim, padding_type, norm_layer, use_dropout, use_bias)
+        self.inner_block = self.build_inner_block()
 
     def build_inner_block(self):
         
