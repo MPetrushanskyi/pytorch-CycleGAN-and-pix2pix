@@ -31,12 +31,12 @@ def move_5_percent_images_to_another_dir(file_list, output_dir,output_dir2):
             print(os.path.basename(file) + " moved to " + output_dir2)
         
 if __name__=="__main__":
-    file_list = get_file_list("/home/mpetrushanskyi/datasets/face/ffhq/images1024x1024/")
+    #file_list = get_file_list("/home/mpetrushanskyi/datasets/face/ffhq/images1024x1024/")
     # convert_png_to_jpg_in_different_dir(file_list, "~/datasets/face/pix2pix/A/train")
     # file_list= get_file_list("~/datasets/face/pix2pix/A/train")
-    move_5_percent_images_to_another_dir(file_list, "/home/mpetrushanskyi/datasets/face/pix2pix/A/val/","/home/mpetrushanskyi/datasets/face/pix2pix/A/train/")
+   # move_5_percent_images_to_another_dir(file_list, "/home/mpetrushanskyi/datasets/face/pix2pix/A/val/","/home/mpetrushanskyi/datasets/face/pix2pix/A/train/")
     
-    file_list1 = get_file_list("/home/mpetrushanskyi/datasets/face/hqr/ffhqr/ffhq/")
+    file_list1 = get_file_list("/home/mpetrushanskyi/datasets/face/hqr/ffhqr/")
     # convert_png_to_jpg_in_different_dir(file_list1, "~/datasets/face/pix2pix/B/train")
     # file_list1= get_file_list("~/datasets/face/pix2pix/A/train")
     move_5_percent_images_to_another_dir(file_list1, "/home/mpetrushanskyi/datasets/face/pix2pix/B/val/","/home/mpetrushanskyi/datasets/face/pix2pix/B/train/")
