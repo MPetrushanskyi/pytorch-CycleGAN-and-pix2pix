@@ -516,7 +516,7 @@ class AutoRetouchInnerBlock(nn.Module):
         
         inner_block = []
         
-        inner_block+=[nn.Conv2d(3,64, kernel_size=7, stride=2)  ]
+        inner_block+=[nn.Conv2d(64, 128, kernel_size=7, stride=2)  ]
         n_blocks=15
         for i in range(n_blocks):       # add ResNet blocks
 
