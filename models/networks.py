@@ -470,7 +470,7 @@ class AutoRetouchModelGenerator(nn.Module):
 class AutoRetouchBlock(nn.Module):
     """Define a Resnet block"""
 
-    def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+    def __init__(self):
         """Initialize the Resnet block
 
         A resnet block is a conv block with skip connections
