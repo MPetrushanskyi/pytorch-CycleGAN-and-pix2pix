@@ -489,10 +489,10 @@ class AutoRetouchBlock(nn.Module):
         conv_block = []
        
 
-        conv_block += [ nn.Conv2d(128, 128, kernel_size=3),
+        conv_block += [ nn.Conv2d(128, 128, kernel_size=3, padding="same"),
                         nn.BatchNorm2d(128),
                         nn.LeakyReLU(0.2, True),
-                        nn.Conv2d(128, 128, kernel_size=3),
+                        nn.Conv2d(128, 128, kernel_size=3, padding="same"),
                         nn.BatchNorm2d(128), 
                         nn.LeakyReLU(0.2, True)]
     
@@ -516,14 +516,14 @@ class AutoRetouchInnerBlock(nn.Module):
         
         inner_block = []
         
-        inner_block+=[nn.Conv2d(64, 128, kernel_size=7, stride=2)  ]
+        inner_block+=[nn.Conv2d(64, 128, kernel_size=7, stride=2, padding="same")  ]
         n_blocks=15
         for i in range(n_blocks):       # add ResNet blocks
 
             inner_block += [AutoRetouchBlock()]
 
         
-        inner_block+= [nn.Conv2d(128, 64, kernel_size=3),
+        inner_block+= [nn.Conv2d(128, 64, kernel_size=3, padding="same"),
         nn.LeakyReLU(0.2,True),
         nn.Upsample(scale_factor=2, mode='nearest', align_corners=True)]
         
