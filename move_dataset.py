@@ -9,6 +9,7 @@ def get_file_list(dir_name):
         for file in files:
             if file.endswith(".png"):
                 file_list.append(os.path.join(root, file))
+    print("Total number of files: " + str(len(file_list)))
     return file_list
 
 #function to convert *.png to *.jpg and save it in the different directory
@@ -30,12 +31,12 @@ def move_5_percent_images_to_another_dir(file_list, output_dir,output_dir2):
             print(os.path.basename(file) + " moved to " + output_dir2)
         
 if __name__=="__main__":
-    file_list = get_file_list("~/datasets/face/ffhq/images1024x1024")
+    file_list = get_file_list("~/datasets/face/ffhq/images1024x1024/")
     # convert_png_to_jpg_in_different_dir(file_list, "~/datasets/face/pix2pix/A/train")
     # file_list= get_file_list("~/datasets/face/pix2pix/A/train")
-    move_5_percent_images_to_another_dir(file_list, "~/datasets/face/pix2pix/A/val","~/datasets/face/pix2pix/A/train")
+    move_5_percent_images_to_another_dir(file_list, "~/datasets/face/pix2pix/A/val/","~/datasets/face/pix2pix/A/train/")
     
-    file_list1 = get_file_list("~/datasets/face/hqr/ffhqr/ffhq")
+    file_list1 = get_file_list("~/datasets/face/hqr/ffhqr/ffhq/")
     # convert_png_to_jpg_in_different_dir(file_list1, "~/datasets/face/pix2pix/B/train")
     # file_list1= get_file_list("~/datasets/face/pix2pix/A/train")
-    move_5_percent_images_to_another_dir(file_list1, "~/datasets/face/pix2pix/B/val","~/datasets/face/pix2pix/B/train")
+    move_5_percent_images_to_another_dir(file_list1, "~/datasets/face/pix2pix/B/val/","~/datasets/face/pix2pix/B/train/")
