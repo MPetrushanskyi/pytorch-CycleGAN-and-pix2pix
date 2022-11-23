@@ -4,6 +4,7 @@ from torch.nn import init
 import functools
 from torch.optim import lr_scheduler
 import torch.nn.functional as F
+import math
 
 
 
@@ -505,6 +506,7 @@ class AutoRetouchBlock(nn.Module):
         """Forward function (with skip connections)"""
         out = x + self.conv_block(x)  # add skip connections
         return out
+
 class Conv2dSame(torch.nn.Conv2d):
 
     def calc_same_pad(self, i: int, k: int, s: int, d: int) -> int:
