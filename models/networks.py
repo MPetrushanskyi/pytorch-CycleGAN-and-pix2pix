@@ -554,7 +554,7 @@ class AutoRetouchInnerBlock(nn.Module):
         
         inner_block+= [nn.Conv2d(128, 64, kernel_size=3, padding="same"),
         nn.LeakyReLU(0.2,True),
-        nn.Upsample(scale_factor=2, mode='nearest', align_corners=True)]
+        nn.Upsample(scale_factor=2, mode='nearest')]
         
 
        
