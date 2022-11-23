@@ -452,7 +452,7 @@ class AutoRetouchModelGenerator(nn.Module):
         super(AutoRetouchModelGenerator, self).__init__()
       
 
-        model=[nn.Conv2d(3, 64, kernel_size=7),
+        model=[Conv2dSame(3, 64, kernel_size=7),
                nn.LeakyReLU(0.2,True)  ]
 
              
@@ -460,7 +460,7 @@ class AutoRetouchModelGenerator(nn.Module):
         model += [AutoRetouchInnerBlock()]
 
         
-        model+= [nn.Conv2d(64, 3, kernel_size=3)]
+        model+= [Conv2dSame(64, 3, kernel_size=3)]
 
         self.model = nn.Sequential(*model)
 
@@ -492,10 +492,10 @@ class AutoRetouchBlock(nn.Module):
         conv_block = []
        
 
-        conv_block += [ nn.Conv2d(128, 128, kernel_size=3, padding="same"),
+        conv_block += [ Conv2dSame(128, 128, kernel_size=3, ),#padding="same"
                         nn.BatchNorm2d(128),
                         nn.LeakyReLU(0.2, True),
-                        nn.Conv2d(128, 128, kernel_size=3, padding="same"),
+                        Conv2dSame(128, 128, kernel_size=3,),#padding="same"
                         nn.BatchNorm2d(128), 
                         nn.LeakyReLU(0.2, True)]
     
@@ -552,7 +552,7 @@ class AutoRetouchInnerBlock(nn.Module):
             inner_block += [AutoRetouchBlock()]
 
         
-        inner_block+= [nn.Conv2d(128, 64, kernel_size=3, padding="same"),
+        inner_block+= [Conv2dSame(128, 64, kernel_size=3),#, padding="same"
         nn.LeakyReLU(0.2,True),
         nn.Upsample(scale_factor=2, mode='nearest')]
         
