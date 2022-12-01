@@ -460,7 +460,8 @@ class AutoRetouchModelGenerator(nn.Module):
         model += [AutoRetouchInnerBlock()]
 
         
-        model+= [Conv2dSame(64, 3, kernel_size=3)]
+        model+= [Conv2dSame(64, 3, kernel_size=3),
+                nn.Tanh()]
 
         self.model = nn.Sequential(*model)
 
@@ -545,7 +546,8 @@ class AutoRetouchInnerBlock(nn.Module):
         inner_block = []
         
         #inner_block+=[nn.Conv2d(64, 128, kernel_size=7, stride=2, padding=)  ]
-        inner_block+=[Conv2dSame(64, 128, kernel_size=7, stride=2)  ]
+        inner_block+=[Conv2dSame(64, 128, kernel_size=7, stride=2) ,
+                    nn.LeakyReLU(0.2) ]
         n_blocks=15
         for i in range(n_blocks):       # add ResNet blocks
 
