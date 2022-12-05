@@ -241,6 +241,8 @@ class GANLoss(nn.Module):
             self.loss = nn.BCEWithLogitsLoss()
         elif gan_mode in ['wgangp']:
             self.loss = None
+        elif gan_mode in ['AutoRetouchLoss']:
+           self.loss = nn.BCEWithLogitsLoss()
         else:
             raise NotImplementedError('gan mode %s not implemented' % gan_mode)
 
