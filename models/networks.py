@@ -241,8 +241,6 @@ class GANLoss(nn.Module):
             self.loss = nn.BCEWithLogitsLoss()
         elif gan_mode in ['wgangp']:
             self.loss = None
-        elif gan_mode in ['AutoRetouchLoss']:
-           self.loss = nn.BCEWithLogitsLoss()
         else:
             raise NotImplementedError('gan mode %s not implemented' % gan_mode)
 
@@ -550,7 +548,7 @@ class AutoRetouchInnerBlock(nn.Module):
         #inner_block+=[nn.Conv2d(64, 128, kernel_size=7, stride=2, padding=)  ]
         inner_block+=[Conv2dSame(64, 128, kernel_size=7, stride=2) ,
                     nn.LeakyReLU(0.2) ]
-        n_blocks=25 #15
+        n_blocks=15
         for i in range(n_blocks):       # add ResNet blocks
 
             inner_block += [AutoRetouchBlock()]

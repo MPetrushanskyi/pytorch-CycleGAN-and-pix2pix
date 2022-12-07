@@ -1,10 +1,6 @@
 import torch
 from .base_model import BaseModel
 from . import networks
-import lpips
-import torch.nn as nn
-
-
 
 
 class Pix2PixModel(BaseModel):
@@ -52,8 +48,6 @@ class Pix2PixModel(BaseModel):
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         self.visual_names = ['real_A', 'fake_B', 'real_B']
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
-        self.loss_fn_vgg = lpips.LPIPS(net='vgg').to(self.device)
-        self.loss_mse=nn.MSELoss()#s.to(self.device)
         if self.isTrain:
             self.model_names = ['G', 'D']
         else:  # during test time, only load G
@@ -98,30 +92,13 @@ class Pix2PixModel(BaseModel):
         # Fake; stop backprop to the generator by detaching fake_B
         fake_AB = torch.cat((self.real_A, self.fake_B), 1)  # we use conditional GANs; we need to feed both input and output to the discriminator
         pred_fake = self.netD(fake_AB.detach())
-        
+        self.loss_D_fake = self.criterionGAN(pred_fake, False)
         # Real
         real_AB = torch.cat((self.real_A, self.real_B), 1)
         pred_real = self.netD(real_AB)
-        #Old:
-        # self.loss_D_fake = self.criterionGAN(pred_fake, False)
-        # self.loss_D_real = self.criterionGAN(pred_real, True)
-
-        #New:
-        self.loss_D_fake=self.criterionGAN(pred_fake - pred_real.mean(0, keepdim=True), False)
-        self.loss_D_real=self.criterionGAN(pred_real - pred_fake.mean(0, keepdim=True), True)
-
-        self.loss_D_perceptual=self.loss_fn_vgg(pred_fake,pred_real)
-        
-
-        self.loss_D_MSE=self.loss_mse(pred_fake,pred_real)
-        
-        
+        self.loss_D_real = self.criterionGAN(pred_real, True)
         # combine loss and calculate gradients
-        self.loss_D_RAGAN = (self.loss_D_fake + self.loss_D_real) * 0.5
-        #self.loss_D_perceptual = (self.loss_perceptual_D_fake + self.loss_perceptual_D_real) * 0.
-        
-
-        self.loss_D=0.001*self.loss_D_RAGAN+0.006*self.loss_D_perceptual+0.5*self.loss_D_MSE
+        self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
         self.loss_D.backward()
 
     def backward_G(self):
@@ -129,30 +106,11 @@ class Pix2PixModel(BaseModel):
         # First, G(A) should fake the discriminator
         fake_AB = torch.cat((self.real_A, self.fake_B), 1)
         pred_fake = self.netD(fake_AB)
-        # Real
-        real_AB = torch.cat((self.real_A, self.real_B), 1)
-        pred_real = self.netD(real_AB)
-        #Old:
         self.loss_G_GAN = self.criterionGAN(pred_fake, True)
-        # self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
-        #New:
-
-        self.loss_G_L1 = self.criterionGAN(pred_fake - pred_real.mean(0, keepdim=True), True)
-
         # Second, G(A) = B
-        
-        self.loss_G_perceptual=self.loss_fn_vgg(pred_fake,pred_real)
-        #self.loss_perceptual_G_real=self.loss_fn_vgg(pred_real)
-
-        self.loss_G_MSE=self.loss_mse(pred_fake,pred_real)
-        #self.loss_G_MSE_real=self.loss_mse(pred_real)
-        
-       
+        self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
         # combine loss and calculate gradients
-        self.loss_G_RAGAN = self.loss_G_GAN + self.loss_G_L1
-        self.loss_G=0.001*self.loss_G_RAGAN+0.006*self.loss_G_perceptual+0.5*self.loss_G_MSE
-
-
+        self.loss_G = self.loss_G_GAN + self.loss_G_L1
         self.loss_G.backward()
 
     def optimize_parameters(self):
