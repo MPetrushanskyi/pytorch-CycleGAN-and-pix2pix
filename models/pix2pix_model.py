@@ -52,8 +52,8 @@ class Pix2PixModel(BaseModel):
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         self.visual_names = ['real_A', 'fake_B', 'real_B']
         # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
-        self.loss_fn_vgg = lpips.LPIPS(net='vgg')
-        self.loss_mse=nn.MSELoss()
+        self.loss_fn_vgg = lpips.LPIPS(net='vgg').to(self.device)
+        self.loss_mse=nn.MSELoss()#s.to(self.device)
         if self.isTrain:
             self.model_names = ['G', 'D']
         else:  # during test time, only load G
@@ -110,16 +110,16 @@ class Pix2PixModel(BaseModel):
         self.loss_D_fake=self.criterionGAN(pred_fake - pred_real.mean(0, keepdim=True), False)
         self.loss_D_real=self.criterionGAN(pred_real - pred_fake.mean(0, keepdim=True), True)
 
-        self.loss_perceptual_D_fake=self.loss_fn_vgg(pred_fake)
-        self.loss_perceptual_D_real=self.loss_fn_vgg(pred_real)
+        self.loss_D_perceptual=self.loss_fn_vgg(pred_fake,pred_real)
+        
 
-        self.loss_D_MSE_fake=self.loss_mse(pred_fake)
-        self.loss_D_MSE_real=self.loss_mse(pred_real)
+        self.loss_D_MSE=self.loss_mse(pred_fake,pred_real)
+        
         
         # combine loss and calculate gradients
         self.loss_D_RAGAN = (self.loss_D_fake + self.loss_D_real) * 0.5
-        self.loss_D_perceptual = (self.loss_perceptual_D_fake + self.loss_perceptual_D_real) * 0.5
-        self.loss_D_MSE = (self.loss_D_MSE_fake + self.loss_D_MSE_real) * 0.5
+        #self.loss_D_perceptual = (self.loss_perceptual_D_fake + self.loss_perceptual_D_real) * 0.
+        
 
         self.loss_D=0.001*self.loss_D_RAGAN+0.006*self.loss_D_perceptual+0.5*self.loss_D_MSE
         self.loss_D.backward()
@@ -141,10 +141,10 @@ class Pix2PixModel(BaseModel):
 
         # Second, G(A) = B
         
-        self.loss_G_perceptual=self.loss_fn_vgg(pred_fake)
+        self.loss_G_perceptual=self.loss_fn_vgg(pred_fake,pred_real)
         #self.loss_perceptual_G_real=self.loss_fn_vgg(pred_real)
 
-        self.loss_G_MSE=self.loss_mse(pred_fake)
+        self.loss_G_MSE=self.loss_mse(pred_fake,pred_real)
         #self.loss_G_MSE_real=self.loss_mse(pred_real)
         
        
