@@ -18,7 +18,7 @@ def image_write(path_A, path_B, path_AB):
     tiles_B=split_to_tiles(im_B)
     for i in range(len(tiles_A)):
         im_AB = np.concatenate([tiles_A[i], tiles_B[i]], 1)
-        path_AB = path_AB.replace('.png', '_'+str(i)+'.png')
+        path_AB = path_AB.replace('.png', '_'+str(i)+'.png')#  
         cv2.imwrite(path_AB, im_AB)
     #im_AB = np.concatenate([im_A, im_B], 1)
     #cv2.imwrite(path_AB, im_AB)
