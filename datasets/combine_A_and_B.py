@@ -4,12 +4,24 @@ import cv2
 import argparse
 from multiprocessing import Pool
 
+def split_to_tiles(img, tile_size=128):
+
+    h, w = img.shape[:2]
+    tiles = [img[x:x+tile_size,y:y+tile_size] for x in range(0,h,tile_size) 
+             for y in range(0,w,tile_size)]
+    return tiles
 
 def image_write(path_A, path_B, path_AB):
     im_A = cv2.imread(path_A, 1) # python2: cv2.CV_LOAD_IMAGE_COLOR; python3: cv2.IMREAD_COLOR
     im_B = cv2.imread(path_B, 1) # python2: cv2.CV_LOAD_IMAGE_COLOR; python3: cv2.IMREAD_COLOR
-    im_AB = np.concatenate([im_A, im_B], 1)
-    cv2.imwrite(path_AB, im_AB)
+    tiles_A=split_to_tiles(im_A)
+    tiles_B=split_to_tiles(im_B)
+    for i in range(len(tiles_A)):
+        im_AB = np.concatenate([tiles_A[i], tiles_B[i]], 1)
+        path_AB = path_AB.replace('.png', '_'+str(i)+'.png')
+        cv2.imwrite(path_AB, im_AB)
+    #im_AB = np.concatenate([im_A, im_B], 1)
+    #cv2.imwrite(path_AB, im_AB)
 
 
 parser = argparse.ArgumentParser('create image pairs')
