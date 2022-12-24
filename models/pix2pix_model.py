@@ -101,6 +101,7 @@ class Pix2PixModel(BaseModel):
             ones = torch.ones_like(C_fake)
             zeros = torch.zeros_like(C_fake)
             self.loss_D=loss((C_real-C_avg_fake),ones) + loss((C_fake-C_avg_real),zeros)
+            self.loss_D_real=self.loss_D_fake=self.loss_D
             self.loss_D.backward()
         else:
         
@@ -121,14 +122,16 @@ class Pix2PixModel(BaseModel):
         if self.gan_mode == 'Auto':
             loss = nn.BCEWithLogitsLoss()
             fake_AB = torch.cat((self.real_A, self.fake_B), 1)  # we use conditional GANs; we need to feed both input and output to the discriminator
-            C_fake = self.netD(fake_AB.detach())
+            C_fake = self.netD(fake_AB)
             real_AB = torch.cat((self.real_A, self.real_B), 1)
-            C_real = self.netD(real_AB.detach())
+            C_real = self.netD(real_AB)
             C_avg_fake = C_fake.mean()
             C_avg_real = C_real.mean()
             ones = torch.ones_like(C_fake)
             zeros = torch.zeros_like(C_fake)
             self.loss_D=loss((C_real-C_avg_fake),zeros) + loss((C_fake-C_avg_real),ones)
+            self.loss_G_GAN=self.loss_D
+            self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
             self.loss_D.backward()
         else:
 
@@ -138,7 +141,7 @@ class Pix2PixModel(BaseModel):
             fake_AB = torch.cat((self.real_A, self.fake_B), 1)
             pred_fake = self.netD(fake_AB)
             self.loss_G_GAN = self.criterionGAN(pred_fake, True)
-            self.loss_G_RGAN = self.criterionGAN(pred_fake, True)
+           # self.loss_G_RGAN = self.criterionGAN(pred_fake, True)
             # Second, G(A) = B
             self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
             # combine loss and calculate gradients
