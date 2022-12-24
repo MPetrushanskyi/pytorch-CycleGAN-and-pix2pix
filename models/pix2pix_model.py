@@ -123,7 +123,7 @@ class Pix2PixModel(BaseModel):
             fake_AB = torch.cat((self.real_A, self.fake_B), 1)  # we use conditional GANs; we need to feed both input and output to the discriminator
             C_fake = self.netD(fake_AB.detach())
             real_AB = torch.cat((self.real_A, self.real_B), 1)
-            C_real = self.netD(real_AB)
+            C_real = self.netD(real_AB.detach())
             C_avg_fake = C_fake.mean()
             C_avg_real = C_real.mean()
             ones = torch.ones_like(C_fake)
